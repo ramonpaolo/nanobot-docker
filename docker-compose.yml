@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  nanobot:
+    build: .
+    volumes:
+      - ./config.json:/home/appuser/.nanobot/config.json:ro
+    ports:
+      - "18790:18790"  # Gateway
+      - "18791:18791"  # WebBridge
+    environment:
+      - NANOBOT_CONFIG=/home/appuser/.nanobot/config.json
+    restart: unless-stopped
+
+  webbridge-agent:
+    image: r4deu51/webbridge-agent:v0.0.1
+    ports:
+      - "8080:8080"
+    environment:
+      - API_KEY=${API_KEY}
+      - AGENT_WS_URL=ws://nanobot:18791
+      - HMAC_SECRET=${HMAC_SECRET:-}
+      - AGENT_NAME=${AGENT_NAME:-Nanobot}
+    depends_on:
+      - nanobot
+    restart: unless-stopped
