@@ -19,7 +19,7 @@ WORKDIR /app
 # Install nanobot, plugin, and frontend dependencies
 RUN pip install --no-cache-dir \
     nanobot-ai \
-    nanobot-webbridge-plugin==1.2.0 \
+    nanobot-webbridge-plugin==1.3.0 \
     fastapi \
     uvicorn[standard] \
     websockets \
