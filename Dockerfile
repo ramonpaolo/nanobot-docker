@@ -7,6 +7,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PORT=8080
 
+# Install git for cloning repos
+RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
+
 # Create non-root user
 RUN groupadd --gid 1000 appgroup \
     && useradd --uid 1000 --gid 1000 --shell /bin/bash --create-home appuser
