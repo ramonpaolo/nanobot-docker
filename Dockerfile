@@ -42,4 +42,4 @@ USER appuser
 EXPOSE 8080
 
 # Run both nanobot gateway and frontend
-CMD nanobot gateway & sleep 2 && python -m uvicorn src.main:app --host 0.0.0.0 --port 8080
+CMD cd /app && nanobot gateway & sleep 2 && python -m uvicorn src.main:app --host 0.0.0.0 --port 8080
