@@ -3,30 +3,26 @@ version: '3.8'
 services:
   nanobot:
     build: .
-    # Only internal ports - not exposed to host
     expose:
-      - "18790"  # Gateway (internal)
-      - "18791"  # WebBridge (internal)
+      - "18790"
+      - "18791"
     environment:
-      # LLM Provider
       - NANOBOT_PROVIDER=${NANOBOT_PROVIDER:-minimax}
       - NANOBOT_MODEL=${NANOBOT_MODEL:-minimax/MiniMax-M2.7-highspeed}
       - NANOBOT_API_KEY_PROVIDER=${NANOBOT_API_KEY_PROVIDER}
       - NANOBOT_API_BASE=${NANOBOT_API_BASE:-https://api.minimax.io/v1}
-      
-      # WebBridge (will auto-generate if not set)
       - NANOBOT_API_KEY=${NANOBOT_API_KEY:-}
       - NANOBOT_HMAC_SECRET=${NANOBOT_HMAC_SECRET:-}
-      
-      # Optional overrides
       - NANOBOT_MAX_TOKENS=${NANOBOT_MAX_TOKENS:-8192}
       - NANOBOT_TEMPERATURE=${NANOBOT_TEMPERATURE:-0.1}
     restart: unless-stopped
 
   webbridge-agent:
-    image: r4deu51/webbridge-agent:v0.0.3
+    build:
+      context: ../agent-webbridge
+      dockerfile: Dockerfile
     ports:
-      - "8080:8080"  # Only this port is exposed
+      - "8080:8080"
     environment:
       - API_KEY=${NANOBOT_API_KEY}
       - HMAC_SECRET=${NANOBOT_HMAC_SECRET:-}
