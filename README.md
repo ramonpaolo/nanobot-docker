@@ -25,44 +25,95 @@ docker-compose up -d
 
 ---
 
-## What you get
+## Configuration
+
+### Environment Variables
+
+| Variable | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| `NANOBOT_API_KEY_PROVIDER` | ✅ Yes | - | API key for your LLM provider |
+| `NANOBOT_API_KEY` | No | auto-generated | API key for WebBridge (auto-generated if not set) |
+| `NANOBOT_API_BASE` | No | `https://api.minimax.io/v1` | API base URL |
+| `NANOBOT_PROVIDER` | No | `minimax` | Provider name (minimax, openai, etc.) |
+| `NANOBOT_MODEL` | No | `minimax/MiniMax-M2.7-highspeed` | Model name |
+| `NANOBOT_HMAC_SECRET` | No | - | HMAC secret for message signing |
+| `AGENT_WS_URL` | No | `ws://localhost:18791` | WebSocket URL for agent-webbridge to connect |
+
+### Frontend WebSocket URL
+
+**Important:** The `AGENT_WS_URL` tells the frontend where to connect to the agent.
+
+- For **docker run**: `ws://localhost:18791`
+- For **docker-compose**: `ws://nanobot:18791`
+
+Example:
+```bash
+docker run -d \
+  --name nanobot \
+  -p 8080:8080 \
+  -e NANOBOT_API_KEY_PROVIDER=your_key \
+  -e AGENT_WS_URL=ws://localhost:18791 \
+  r4deu51/nanobot-webbridge:latest
+```
+
+---
+
+## Ports
 
 | Port | Service |
 |------|---------|
-| 8080 | Web Frontend ✅ |
+| 8080 | Web Frontend |
+| 18790 | nanobot Gateway (internal) |
+| 18791 | WebBridge (internal) |
 
-nanobot gateway and webbridge run internally.
-
----
-
-## Required
-
-```bash
-export NANOBOT_API_KEY_PROVIDER=your_llm_api_key
-```
-
-## Optional
-
-```bash
-export NANOBOT_PROVIDER=minimax
-export NANOBOT_MODEL=minimax/MiniMax-M2.7-highspeed
-export NANOBOT_HMAC_SECRET=
-```
-
-Then run `./setup.sh && docker-compose up -d`
+Only port **8080** is exposed to the host.
 
 ---
 
-## Manual Setup
+## Examples
+
+### With OpenAI
 
 ```bash
-cat > .env << EOF
-NANOBOT_API_KEY_PROVIDER=your_key
-NANOBOT_API_KEY=auto-generated
-EOF
+export NANOBOT_API_KEY_PROVIDER=sk-xxx
+export NANOBOT_PROVIDER=openai
+export NANOBOT_MODEL=gpt-4o
+export NANOBOT_API_BASE=https://api.openai.com/v1
+export AGENT_WS_URL=ws://localhost:18791
 
-docker-compose up -d
+./setup.sh && docker-compose up -d
 ```
+
+### Manual Docker Run
+
+```bash
+docker run -d \
+  --name nanobot \
+  -p 8080:8080 \
+  -e NANOBOT_API_KEY_PROVIDER=your_key \
+  -e NANOBOT_API_KEY=your_webbridge_key \
+  -e AGENT_WS_URL=ws://localhost:18791 \
+  -e NANOBOT_PROVIDER=minimax \
+  -e NANOBOT_MODEL=minimax/MiniMax-M2.7-highspeed \
+  r4deu51/nanobot-webbridge:latest
+```
+
+---
+
+## Troubleshooting
+
+### "Error: Agent connection failed: Name or service not known"
+
+- Set `AGENT_WS_URL=ws://localhost:18791` (for docker run)
+- Or `AGENT_WS_URL=ws://nanobot:18791` (for docker-compose)
+
+### "Error: Invalid API key"
+
+- Make sure `NANOBOT_API_KEY` (or auto-generated) matches the frontend's API_KEY
+
+### Browser WebSocket URL
+
+- Connect to: `ws://localhost:8080/ws` (not `/`)
 
 ---
 
