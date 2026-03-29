@@ -24,12 +24,11 @@ services:
     restart: unless-stopped
 
   webbridge-agent:
-    image: r4deu51/webbridge-agent:v0.0.1
+    image: r4deu51/webbridge-agent:v0.0.2
     ports:
       - "8080:8080"  # Only this port is exposed
     environment:
-      - API_KEY=${NANOBOT_API_KEY:-}  # Will be passed after nanobot generates it
-      - AGENT_WS_URL=ws://nanobot:18791
+      - API_KEY=${NANOBOT_API_KEY}
       - HMAC_SECRET=${NANOBOT_HMAC_SECRET:-}
       - AGENT_NAME=${AGENT_NAME:-Nanobot}
     depends_on:

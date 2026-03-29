@@ -4,7 +4,6 @@ set -e
 # Generate API_KEY if not provided
 if [ -z "$NANOBOT_API_KEY" ]; then
     export NANOBOT_API_KEY=$(openssl rand -hex 16)
-    echo "Generated API_KEY: $NANOBOT_API_KEY"
 fi
 
 # Create .env file for docker-compose
@@ -20,11 +19,11 @@ EOF
 
 echo ""
 echo "=============================================="
-echo "  Configuration saved to .env"
+echo "  nanobot-docker is ready!"
 echo "=============================================="
 echo ""
 echo "  API Key: $NANOBOT_API_KEY"
 echo "  Frontend: http://localhost:8080"
 echo ""
-echo "  To start: docker-compose up -d"
+echo "  Run: docker-compose up -d"
 echo "=============================================="
