@@ -3,9 +3,10 @@ version: '3.8'
 services:
   nanobot:
     build: .
-    ports:
-      - "${NANOBOT_GATEWAY_PORT:-18790}:${NANOBOT_GATEWAY_PORT:-18790}"
-      - "${NANOBOT_WEBBRIDGE_PORT:-18791}:${NANOBOT_WEBBRIDGE_PORT:-18791}"
+    # Only internal ports - not exposed to host
+    expose:
+      - "18790"  # Gateway (internal)
+      - "18791"  # WebBridge (internal)
     environment:
       # LLM Provider
       - NANOBOT_PROVIDER=${NANOBOT_PROVIDER:-minimax}
@@ -13,10 +14,9 @@ services:
       - NANOBOT_API_KEY_PROVIDER=${NANOBOT_API_KEY_PROVIDER}
       - NANOBOT_API_BASE=${NANOBOT_API_BASE:-https://api.minimax.io/v1}
       
-      # WebBridge
-      - NANOBOT_API_KEY=${NANOBOT_API_KEY}
+      # WebBridge (will auto-generate if not set)
+      - NANOBOT_API_KEY=${NANOBOT_API_KEY:-}
       - NANOBOT_HMAC_SECRET=${NANOBOT_HMAC_SECRET:-}
-      - NANOBOT_ALLOWED_IP_NULL=${NANOBOT_ALLOWED_IP_NULL:-null}
       
       # Optional overrides
       - NANOBOT_MAX_TOKENS=${NANOBOT_MAX_TOKENS:-8192}
@@ -26,10 +26,10 @@ services:
   webbridge-agent:
     image: r4deu51/webbridge-agent:v0.0.1
     ports:
-      - "8080:8080"
+      - "8080:8080"  # Only this port is exposed
     environment:
-      - API_KEY=${NANOBOT_API_KEY}
-      - AGENT_WS_URL=ws://nanobot:${NANOBOT_WEBBRIDGE_PORT:-18791}
+      - API_KEY=${NANOBOT_API_KEY:-}  # Will be passed after nanobot generates it
+      - AGENT_WS_URL=ws://nanobot:18791
       - HMAC_SECRET=${NANOBOT_HMAC_SECRET:-}
       - AGENT_NAME=${AGENT_NAME:-Nanobot}
     depends_on:

@@ -1,112 +1,95 @@
 # nanobot-docker
 
-🚀 **Docker image for nanobot AI agent with WebBridge** — Everything you need in one stack!
-
-Includes nanobot + nanobot-webbridge-plugin + agent-webbridge frontend.
+🚀 **One-command AI agent with web interface!** No configuration needed - it auto-generates everything.
 
 ---
 
-## Quick Start (2 minutes)
+## Quick Start (30 seconds!)
 
-### 1. Create `.env` file
+### 1. Run setup (generates API key automatically)
 
 ```bash
-cat > .env << EOF
-# Required: LLM Provider API Key
-NANOBOT_API_KEY_PROVIDER=your_llm_api_key_here
+cd nanobot-docker
 
-# Required: WebBridge API Key (for frontend authentication)
-NANOBOT_API_KEY=your_webbridge_api_key_here
+# Set your LLM API key
+export NANOBOT_API_KEY_PROVIDER=your_llm_api_key
 
-# Optional
-NANOBOT_PROVIDER=minimax
-NANOBOT_MODEL=minimax/MiniMax-M2.7-highspeed
-NANOBOT_HMAC_SECRET=
-AGENT_NAME=Nanobot
-EOF
+# Run setup (generates everything)
+./setup.sh
 ```
 
-### 2. Run!
+### 2. Start!
 
 ```bash
 docker-compose up -d
 ```
 
-### 3. Access the frontend
+### 3. Access
 
 Open **http://localhost:8080**
+
+The frontend is already configured with the auto-generated API key!
 
 ---
 
 ## What you get
 
-| Service | Port | Description |
-|---------|------|-------------|
-| **nanobot** | 18790 | Gateway API |
-| **nanobot** | 18791 | WebBridge WebSocket |
-| **webbridge-agent** | 8080 | Web Frontend |
+| Service | Port | Access |
+|---------|------|--------|
+| **Frontend** | 8080 | http://localhost:8080 ✅ |
+| **nanobot** | internal | Not exposed to internet |
+
+All connections stay local inside Docker network.
 
 ---
 
-## Environment Variables
+## Setup Script
+
+The `setup.sh` script:
+- ✅ Auto-generates a secure API key
+- ✅ Creates `.env` file
+- ✅ Configures everything automatically
+
+---
+
+## Configuration
 
 ### Required
 
-| Variable | Description |
-|----------|-------------|
-| `NANOBOT_API_KEY_PROVIDER` | API key for your LLM provider (Minimax, OpenAI, etc.) |
-| `NANOBOT_API_KEY` | API key for WebBridge authentication |
+```bash
+export NANOBOT_API_KEY_PROVIDER=your_llm_api_key
+```
 
 ### Optional
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `NANOBOT_PROVIDER` | `minimax` | LLM provider name |
-| `NANOBOT_MODEL` | `minimax/MiniMax-M2.7-highspeed` | Model to use |
-| `NANOBOT_API_BASE` | `https://api.minimax.io/v1` | API base URL |
-| `NANOBOT_HMAC_SECRET` | (empty) | HMAC secret for message signing |
-| `NANOBOT_MAX_TOKENS` | `8192` | Max tokens per response |
-| `NANOBOT_TEMPERATURE` | `0.1` | Temperature |
-| `AGENT_NAME` | `Nanobot` | Agent display name |
+```bash
+export NANOBOT_PROVIDER=minimax      # Provider (default: minimax)
+export NANOBOT_MODEL=minimax/MiniMax-M2.7-highspeed
+export NANOBOT_API_BASE=https://api.minimax.io/v1
+export AGENT_NAME=Nanobot
+export NANOBOT_HMAC_SECRET=          # Optional HMAC
+```
+
+Then run:
+```bash
+./setup.sh
+docker-compose up -d
+```
 
 ---
 
-## Examples
+## Manual Setup
 
-### Minimal Setup (Minimax)
-
-```bash
-cat > .env << EOF
-NANOBOT_API_KEY_PROVIDER=your_minimax_key
-NANOBOT_API_KEY=your_webbridge_key
-EOF
-
-docker-compose up -d
-```
-
-### With OpenAI
+If you prefer to set the API key yourself:
 
 ```bash
+# Create .env manually
 cat > .env << EOF
-NANOBOT_PROVIDER=openai
-NANOBOT_MODEL=gpt-4o
-NANOBOT_API_BASE=https://api.openai.com/v1
-NANOBOT_API_KEY_PROVIDER=your_openai_key
-NANOBOT_API_KEY=your_webbridge_key
-AGENT_NAME=OpenAI Bot
-EOF
-
-docker-compose up -d
-```
-
-### Custom Ports
-
-```bash
-cat > .env << EOF
-NANOBOT_API_KEY_PROVIDER=your_key
-NANOBOT_API_KEY=webbridge_key
-NANOBOT_GATEWAY_PORT=18790
-NANOBOT_WEBBRIDGE_PORT=18791
+NANOBOT_API_KEY_PROVIDER=your_llm_api_key
+NANOBOT_API_KEY=your_preferred_key
+NANOBOT_PROVIDER=minimax
+NANOBOT_MODEL=minimax/MiniMax-M2.7-highspeed
+AGENT_NAME=Nanobot
 EOF
 
 docker-compose up -d
@@ -114,18 +97,26 @@ docker-compose up -d
 
 ---
 
-## Standalone nanobot (without frontend)
+## Docker Network Security
 
-If you only want the nanobot container:
+Only port **8080** (frontend) is exposed to the host.
+
+Ports 18790 and 18791 (nanobot) are:
+- Only accessible inside the Docker network
+- Not exposed to the internet
+- Not accessible from outside Docker
+
+---
+
+## Stopping
 
 ```bash
-docker run -d \
-  --name nanobot \
-  -p 18790:18790 \
-  -p 18791:18791 \
-  -e NANOBOT_API_KEY_PROVIDER=your_key \
-  -e NANOBOT_API_KEY=webbridge_key \
-  r4deu51/nanobot-webbridge:v0.0.7
+docker-compose down
+```
+
+To remove everything (including data):
+```bash
+docker-compose down -v
 ```
 
 ---
