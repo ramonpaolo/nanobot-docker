@@ -19,7 +19,7 @@ WORKDIR /app
 # Install nanobot, plugin, and frontend dependencies
 RUN pip install --no-cache-dir \
     nanobot-ai \
-    git+https://github.com/ramonpaolo/nanobot-webbridge-plugin.git@v1.3.0 \
+    git+https://github.com/ramonpaolo/nanobot-webbridge-plugin.git@v1.4.2 \
     fastapi \
     uvicorn[standard] \
     websockets \
@@ -27,8 +27,9 @@ RUN pip install --no-cache-dir \
     aiofiles \
     pydantic
 
-# Clone webbridge-agent frontend (repo has src/ inside, so clone to temp then move)
-RUN git clone https://github.com/ramonpaolo/webbridge-agent.git /app/bridge && \
+# Clone webbridge-agent frontend (always fresh clone)
+RUN rm -rf /app/bridge /app/src && \
+    git clone https://github.com/ramonpaolo/webbridge-agent.git /app/bridge && \
     mv /app/bridge/src /app/src && \
     rm -rf /app/bridge
 
