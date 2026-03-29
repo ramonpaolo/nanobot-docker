@@ -13,10 +13,10 @@ RUN groupadd --gid 1000 appgroup \
 
 WORKDIR /app
 
-# Install nanobot-ai and webbridge plugin
+# Install nanobot-ai and webbridge plugin (specific version)
 RUN pip install --no-cache-dir \
     nanobot-ai \
-    nanobot-webbridge-plugin
+    nanobot-webbridge-plugin==1.0.1
 
 # Create .nanobot directory
 RUN mkdir -p /home/appuser/.nanobot && \
