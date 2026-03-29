@@ -24,8 +24,8 @@ RUN pip install --no-cache-dir \
     aiofiles \
     pydantic
 
-# Copy webbridge-agent frontend
-COPY src/ /app/src/
+# Clone webbridge-agent frontend
+RUN git clone https://github.com/ramonpaolo/webbridge-agent.git /app/src
 
 # Create .nanobot directory and set permissions
 RUN mkdir -p /home/appuser/.nanobot && \
@@ -36,7 +36,7 @@ RUN mkdir -p /home/appuser/.nanobot && \
 USER appuser
 
 # Expose ports
-EXPOSE 18790 18791 8080
+EXPOSE 8080
 
 # Run both nanobot gateway and frontend
 CMD nanobot gateway & sleep 2 && python -m uvicorn src.main:app --host 0.0.0.0 --port 8080
