@@ -27,8 +27,10 @@ RUN pip install --no-cache-dir \
     aiofiles \
     pydantic
 
-# Clone webbridge-agent frontend
-RUN git clone https://github.com/ramonpaolo/webbridge-agent.git /app/src
+# Clone webbridge-agent frontend (repo has src/ inside, so clone to temp then move)
+RUN git clone https://github.com/ramonpaolo/webbridge-agent.git /app/bridge && \
+    mv /app/bridge/src /app/src && \
+    rm -rf /app/bridge
 
 # Create .nanobot directory and set permissions
 RUN mkdir -p /home/appuser/.nanobot && \
