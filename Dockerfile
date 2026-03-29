@@ -17,10 +17,9 @@ RUN groupadd --gid 1000 appgroup \
 WORKDIR /app
 
 # Install nanobot, plugin, and frontend dependencies
-# Using git for now (PyPI version available after release)
 RUN pip install --no-cache-dir \
     nanobot-ai \
-    nanobot-webbridge-plugin==1.1.0 \
+    nanobot-webbridge-plugin==1.2.0 \
     fastapi \
     uvicorn[standard] \
     websockets \
