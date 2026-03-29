@@ -45,5 +45,5 @@ EOF
 echo "Config generated:"
 cat /home/appuser/.nanobot/config.json
 
-# Run nanobot
-exec nanobot run
+# Run nanobot gateway
+exec nanobot gateway
