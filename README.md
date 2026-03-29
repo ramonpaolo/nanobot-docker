@@ -1,132 +1,120 @@
 # nanobot-docker
 
-🚀 **One-command AI agent with web interface!** No configuration needed - it auto-generates everything.
+🚀 **One container with everything!** AI agent + web interface in a single Docker image.
 
 ---
 
 ## Quick Start (30 seconds!)
 
-### 1. Run setup (generates API key automatically)
+### 1. Create `.env` file
 
 ```bash
-cd nanobot-docker
-
-# Set your LLM API key
-export NANOBOT_API_KEY_PROVIDER=your_llm_api_key
-
-# Run setup (generates everything)
-./setup.sh
+cat > .env << EOF
+NANOBOT_API_KEY_PROVIDER=your_llm_api_key_here
+EOF
 ```
 
-### 2. Start!
+### 2. Run!
 
 ```bash
-docker-compose up -d
+docker run -d \
+  --name nanobot \
+  -p 8080:8080 \
+  --env-file .env \
+  r4deu51/nanobot-webbridge:v0.0.12
 ```
 
 ### 3. Access
 
 Open **http://localhost:8080**
 
-The frontend is already configured with the auto-generated API key!
-
 ---
 
 ## What you get
 
-| Service | Port | Access |
+| Service | Port | Status |
 |---------|------|--------|
-| **Frontend** | 8080 | http://localhost:8080 ✅ |
-| **nanobot** | internal | Not exposed to internet |
+| **Frontend** | 8080 | ✅ Exposed |
+| **nanobot** | internal | ✅ Running |
+| **webbridge** | internal | ✅ Running |
 
-All connections stay local inside Docker network.
-
----
-
-## Setup Script
-
-The `setup.sh` script:
-- ✅ Auto-generates a secure API key
-- ✅ Creates `.env` file
-- ✅ Configures everything automatically
+Everything in one container!
 
 ---
 
-## Configuration
+## Environment Variables
 
 ### Required
 
-```bash
-export NANOBOT_API_KEY_PROVIDER=your_llm_api_key
-```
+| Variable | Description |
+|----------|-------------|
+| `NANOBOT_API_KEY_PROVIDER` | API key for your LLM provider |
 
 ### Optional
 
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `NANOBOT_API_KEY` | auto-generated | API key for webbridge |
+| `NANOBOT_PROVIDER` | `minimax` | LLM provider |
+| `NANOBOT_MODEL` | `minimax/MiniMax-M2.7-highspeed` | Model |
+| `NANOBOT_API_BASE` | `https://api.minimax.io/v1` | API base URL |
+| `NANOBOT_HMAC_SECRET` | (empty) | HMAC secret |
+| `NANOBOT_MAX_TOKENS` | `8192` | Max tokens |
+| `NANOBOT_TEMPERATURE` | `0.1` | Temperature |
+| `AGENT_NAME` | `Nanobot` | Agent display name |
+
+---
+
+## Examples
+
+### With OpenAI
+
 ```bash
-export NANOBOT_PROVIDER=minimax      # Provider (default: minimax)
-export NANOBOT_MODEL=minimax/MiniMax-M2.7-highspeed
-export NANOBOT_API_BASE=https://api.minimax.io/v1
-export AGENT_NAME=Nanobot
-export NANOBOT_HMAC_SECRET=          # Optional HMAC
+docker run -d \
+  --name nanobot \
+  -p 8080:8080 \
+  -e NANOBOT_PROVIDER=openai \
+  -e NANOBOT_MODEL=gpt-4o \
+  -e NANOBOT_API_BASE=https://api.openai.com/v1 \
+  -e NANOBOT_API_KEY_PROVIDER=your_openai_key \
+  r4deu51/nanobot-webbridge:v0.0.12
 ```
 
-Then run:
+### With Custom API Key
+
 ```bash
-./setup.sh
-docker-compose up -d
+docker run -d \
+  --name nanobot \
+  -p 8080:8080 \
+  -e NANOBOT_API_KEY_PROVIDER=your_key \
+  -e NANOBOT_API_KEY=my_custom_key \
+  r4deu51/nanobot-webbridge:v0.0.12
 ```
 
 ---
 
-## Manual Setup
+## Ports
 
-If you prefer to set the API key yourself:
+Only port **8080** is exposed (frontend).
 
-```bash
-# Create .env manually
-cat > .env << EOF
-NANOBOT_API_KEY_PROVIDER=your_llm_api_key
-NANOBOT_API_KEY=your_preferred_key
-NANOBOT_PROVIDER=minimax
-NANOBOT_MODEL=minimax/MiniMax-M2.7-highspeed
-AGENT_NAME=Nanobot
-EOF
-
-docker-compose up -d
-```
-
----
-
-## Docker Network Security
-
-Only port **8080** (frontend) is exposed to the host.
-
-Ports 18790 and 18791 (nanobot) are:
-- Only accessible inside the Docker network
-- Not exposed to the internet
-- Not accessible from outside Docker
+Internal ports 18790 (gateway) and 18791 (webbridge) are not accessible from outside.
 
 ---
 
 ## Stopping
 
 ```bash
-docker-compose down
-```
-
-To remove everything (including data):
-```bash
-docker-compose down -v
+docker stop nanobot
+docker rm nanobot
 ```
 
 ---
 
 ## Image Details
 
-| Image | Description |
-|-------|-------------|
-| `r4deu51/nanobot-webbridge` | nanobot + webbridge plugin |
-| `r4deu51/webbridge-agent` | Web frontend |
+- **Base**: python:3.12-slim
+- **User**: Non-root (appuser)
+- **Includes**: nanobot-ai + webbridge plugin + agent-webbridge
 
 ---
 

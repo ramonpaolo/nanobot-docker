@@ -1,11 +1,12 @@
-# nanobot with WebBridge plugin
-# AI Agent with universal web interface
+# nanobot with WebBridge and Frontend
+# All-in-one AI agent with web interface
 # https://github.com/ramonpaolo/nanobot-docker
 
 FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    PORT=8080
 
 # Create non-root user
 RUN groupadd --gid 1000 appgroup \
@@ -13,24 +14,25 @@ RUN groupadd --gid 1000 appgroup \
 
 WORKDIR /app
 
-# Install nanobot-ai and webbridge plugin (specific version)
+# Install nanobot-ai and webbridge plugin
 RUN pip install --no-cache-dir \
     nanobot-ai \
-    nanobot-webbridge-plugin==1.0.1
+    nanobot-webbridge-plugin==1.0.1 \
+    git+https://github.com/ramonpaolo/agent-webbridge.git
 
 # Create .nanobot directory
 RUN mkdir -p /home/appuser/.nanobot && \
     chown -R appuser:appgroup /home/appuser
 
-# Copy entrypoint script
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# Copy start script
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
 
 # Switch to non-root user
 USER appuser
 
-# Expose ports
-EXPOSE 18790 18791
+# Expose frontend port
+EXPOSE 8080
 
-# Run entrypoint which generates config and starts nanobot
-ENTRYPOINT ["/entrypoint.sh"]
+# Run start script
+CMD ["/start.sh"]
