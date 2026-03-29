@@ -22,15 +22,11 @@ RUN pip install --no-cache-dir \
 RUN mkdir -p /home/appuser/.nanobot && \
     chown -R appuser:appgroup /home/appuser
 
-# Copy entrypoint script
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
 # Switch to non-root user
 USER appuser
 
 # Expose ports
 EXPOSE 18790 18791
 
-# Run with environment-based config
-ENTRYPOINT ["/entrypoint.sh"]
+# Run nanobot gateway
+CMD ["nanobot", "gateway"]
