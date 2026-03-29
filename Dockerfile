@@ -1,5 +1,4 @@
-# nanobot with WebBridge and Frontend
-# All-in-one AI agent with web interface
+# nanobot + webbridge-agent (all-in-one)
 # https://github.com/ramonpaolo/nanobot-docker
 
 FROM python:3.12-slim
@@ -14,25 +13,30 @@ RUN groupadd --gid 1000 appgroup \
 
 WORKDIR /app
 
-# Install nanobot-ai and webbridge plugin
+# Install nanobot, plugin, and frontend dependencies
 RUN pip install --no-cache-dir \
     nanobot-ai \
     nanobot-webbridge-plugin==1.0.1 \
-    git+https://github.com/ramonpaolo/agent-webbridge.git
+    fastapi \
+    uvicorn[standard] \
+    websockets \
+    python-multipart \
+    aiofiles \
+    pydantic
 
-# Create .nanobot directory
+# Copy webbridge-agent frontend
+COPY src/ /app/src/
+
+# Create .nanobot directory and set permissions
 RUN mkdir -p /home/appuser/.nanobot && \
-    chown -R appuser:appgroup /home/appuser
-
-# Copy start script
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
+    mkdir -p /app/src/static/uploads && \
+    chown -R appuser:appgroup /home/appuser /app/src/static
 
 # Switch to non-root user
 USER appuser
 
-# Expose frontend port
-EXPOSE 8080
+# Expose ports
+EXPOSE 18790 18791 8080
 
-# Run start script
-CMD ["/start.sh"]
+# Run both nanobot gateway and frontend
+CMD nanobot gateway & sleep 2 && python -m uvicorn src.main:app --host 0.0.0.0 --port 8080
