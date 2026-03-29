@@ -24,7 +24,7 @@ services:
     restart: unless-stopped
 
   webbridge-agent:
-    image: r4deu51/webbridge-agent:v0.0.2
+    image: r4deu51/webbridge-agent:v0.0.3
     ports:
       - "8080:8080"  # Only this port is exposed
     environment:
